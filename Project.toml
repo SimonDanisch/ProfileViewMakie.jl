@@ -3,7 +3,13 @@ uuid = "ec1100b5-2a7a-4d7a-8e96-1aa855822cbc"
 authors = ["Simon Danisch"]
 version = "1.0.0-DEV"
 
+[deps]
+FlameGraphs = "08572546-2f56-4bcf-ba4e-bab62c3a3f89"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+
 [compat]
+FlameGraphs = "1.1.0"
+Makie = "0.23.0, 0.24"
 julia = "1.6.7"
 
 [extras]
