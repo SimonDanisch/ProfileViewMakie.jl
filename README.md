@@ -23,7 +23,7 @@ The easiest way to profile and visualize code in one step:
 
 ```julia
 using ProfileViewMakie
-
+using GLMakie # Your backend of choice, interactive are best so WGLMakie or GLMakie
 # Profile and visualize in one step
 data = ProfileViewMakie.@profileview rand(5000, 5000)
 ```
