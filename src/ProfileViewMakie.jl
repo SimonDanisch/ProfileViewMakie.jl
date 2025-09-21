@@ -1,13 +1,47 @@
 module ProfileViewMakie
 
-using Makie, FlameGraphs
+using Makie, FlameGraphs, Profile
 
+"""
+    profileview(flamegraph; flamecolor = FlameColors())
+
+Creates an interactive flame graph visualization for Julia profiling data using Makie.jl.
+
+## Arguments
+- `flamegraph`: A flame graph object from FlameGraphs.jl containing profiling data
+
+## Usage Examples
+
+### Using the `@profileview` macro
+```julia
+using ProfileViewMakie
+
+# Profile and visualize in one step
+data = ProfileViewMakie.@profileview rand(5000, 5000)
+```
+
+### Manual profiling and visualization
+```julia
+using ProfileViewMakie
+using Profile
+
+# Clear previous profiling data
+Profile.clear()
+
+# Profile your code
+Profile.@profile rand(3000, 3000)
+
+# Generate flame graph and visualize
+g = ProfileViewMakie.flamegraph()
+profileview(g)
+```
+
+## Features
+- Interactive inspection with DataInspector showing file names, line numbers, and function names
+- Customizable coloring using FlameGraphs.jl color schemes
+- Hover tooltips displaying detailed stack frame information
+"""
 @recipe ProfileView (flamegraph,) begin
-
-    """
-    Sets coloring function for the flamegraph.
-    See https://timholy.github.io/FlameGraphs.jl/stable/reference/#FlameGraphs.FlameColors for more details.
-    """
     flamecolor = FlameColors()
 end
 
@@ -34,22 +68,27 @@ function short_info_str(sf)
     end
 end
 
-
-function plot!(recipe::ProfileView)
+function Makie.plot!(recipe::ProfileView)
     flamegraph = recipe.flamegraph[]
     pixels = flamepixels(recipe.flamecolor[], flamegraph)
     tagimg = flametags(flamegraph, pixels)
     function inspector_label(self, i, pos)
         sf = tagimg[i...]
-        @show sf
-        @show propertynames(sf)
         return string(tagimg[i...])
     end
-    image!(pixels; interpolate=false, inspector_label=inspector_label)
+    image!(recipe, pixels; interpolate=false, inspector_label=inspector_label)
     scene = Makie.parent_scene(recipe)
     DataInspector(scene; fontsize=10)
     return
 end
 
+macro profileview(expr)
+    return quote
+        Profile.clear()
+        Profile.@profile $expr
+        g = flamegraph()
+        profileview(g)
+    end
+end
 
 end

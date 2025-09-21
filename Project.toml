@@ -6,14 +6,17 @@ version = "1.0.0-DEV"
 [deps]
 FlameGraphs = "08572546-2f56-4bcf-ba4e-bab62c3a3f89"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+Profile = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
 
 [compat]
 FlameGraphs = "1.1.0"
 Makie = "0.23.0, 0.24"
+Profile = "1.11.0"
 julia = "1.6.7"
 
 [extras]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Test", "CairoMakie"]
