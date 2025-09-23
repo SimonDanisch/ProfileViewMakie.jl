@@ -43,6 +43,7 @@ profileview(g)
 """
 @recipe ProfileView (flamegraph,) begin
     flamecolor = FlameColors()
+    fontsize = 15
 end
 
 # From ProfileView
@@ -68,24 +69,43 @@ function short_info_str(sf)
     end
 end
 
+function break_line_at_width_limit(str::String, breakeverycharacters)
+    iob = IOBuffer()
+    for (i,s) in enumerate(str)
+        write(iob, s)
+        i % breakeverycharacters == 0 && write(iob, "\n")
+    end
+    return String(take!(iob))
+end
+
 function Makie.plot!(recipe::ProfileView)
+    Makie.add_input!(recipe.attributes, :viewport, Makie.parent_scene(recipe).viewport)
+
+    map!(recipe, [:viewport, :fontsize], :linecharachterslength) do viewport, fontsize
+        linecharachterslength = viewport.widths[1] / fontsize * 1.8
+        return floor(Int,linecharachterslength)
+    end
+
     flamegraph = recipe.flamegraph[]
     pixels = flamepixels(recipe.flamecolor[], flamegraph)
     tagimg = flametags(flamegraph, pixels)
+
     function inspector_label(self, i, pos)
         sf = tagimg[i...]
-        return string(tagimg[i...])
+        mytext = string(tagimg[i...])
+        return break_line_at_width_limit(mytext, recipe.linecharachterslength[])
     end
+
     image!(recipe, pixels; interpolate=false, inspector_label=inspector_label)
     scene = Makie.parent_scene(recipe)
-    DataInspector(scene; fontsize=10)
+    DataInspector(scene; recipe.fontsize)
     return
 end
 
 macro profileview(expr)
     return quote
         Profile.clear()
-        Profile.@profile $expr
+        Profile.@profile $(esc(expr))
         g = flamegraph()
         profileview(g)
     end
