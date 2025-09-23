@@ -78,14 +78,14 @@ function Makie.plot!(recipe::ProfileView)
     end
     image!(recipe, pixels; interpolate=false, inspector_label=inspector_label)
     scene = Makie.parent_scene(recipe)
-    DataInspector(scene; fontsize=10)
+    DataInspector(scene; fontsize=15)
     return
 end
 
 macro profileview(expr)
     return quote
         Profile.clear()
-        Profile.@profile $expr
+        Profile.@profile $(esc(expr))
         g = flamegraph()
         profileview(g)
     end
